@@ -1,4 +1,4 @@
-**README in English:**
+## README in English:
 
 ---
 
@@ -116,7 +116,11 @@ It is feasible to call Java library functions in Python. Common methods include 
 
 Choose the appropriate method based on requirements. For simple integration, **JPype** is recommended; for distributed scenarios, consider **Py4J**.
 
-**README in Chinese:**
+---
+
+## README in Chinese:
+
+---
 
 在Python中调用Java库的函数，常用的方法有使用**JPype**或**Py4J**库。下面分别提供两种方法的示例：
 
