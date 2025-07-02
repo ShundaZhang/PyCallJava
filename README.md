@@ -1,3 +1,123 @@
+**README in English:**
+
+---
+
+It is feasible to call Java library functions in Python. Common methods include using the **JPype** or **Py4J** libraries. Below are examples of both approaches:
+
+---
+
+### Method 1: Using JPype (Recommended)  
+**Principle**: Starts a JVM within the Python process to directly call Java classes.
+
+#### Steps:  
+1. **Install JPype**:  
+   ```bash
+   pip install JPype1
+   ```
+
+2. **Write Java class** (Save as `HelloWorld.java`):  
+   ```java
+   public class HelloWorld {
+       // Static method
+       public static String greetStatic(String name) {
+           return "Hello, " + name + " (Static)";
+       }
+       
+       // Instance method
+       public String greetInstance(String name) {
+           return "Hello, " + name + " (Instance)";
+       }
+   }
+   ```
+
+3. **Compile Java class**:  
+   ```bash
+   javac HelloWorld.java
+   ```
+
+4. **Python calling code**:  
+   ```python
+   import jpype
+
+   # Start JVM (specify Java classpath)
+   jpype.startJVM(classpath=['.'])  # '.' represents current directory
+
+   # Import Java class
+   HelloWorld = jpype.JClass("HelloWorld")
+
+   # Call static method
+   print(HelloWorld.greetStatic("Python"))  # Output: Hello, Python (Static)
+
+   # Create instance and call method
+   hello_obj = HelloWorld()
+   print(hello_obj.greetInstance("World"))  # Output: Hello, World (Instance)
+
+   # Shutdown JVM
+   jpype.shutdownJVM()
+   ```
+
+---
+
+### Method 2: Using Py4J  
+**Principle**: Java side starts a gateway service, Python calls via TCP connection.
+
+#### Steps:  
+1. **Install Py4J**:  
+   ```bash
+   pip install py4j
+   ```
+
+2. **Write Java gateway program** (Save as `HelloWorldServer.java`):  
+   ```java
+   import py4j.GatewayServer;
+
+   public class HelloWorldServer {
+       public String greet(String name) {
+           return "Hello, " + name + " from Py4J!";
+       }
+       
+       public static void main(String[] args) {
+           GatewayServer server = new GatewayServer(new HelloWorldServer());
+           server.start();
+           System.out.println("Gateway Server Started");
+       }
+   }
+   ```
+
+3. **Compile and run Java program** (Ensure `py4j.jar` is in classpath):  
+   ```bash
+   javac -cp py4j0.10.9.9.jar HelloWorldServer.java  # Version must match
+   jar cf HelloWorldServer.jar HelloWorldServer.class
+   java -cp .:py4j0.10.9.9.jar HelloWorldServer
+   ```
+
+4. **Python calling code**:  
+   ```python
+   from py4j.java_gateway import JavaGateway
+
+   # Connect to Java gateway
+   gateway = JavaGateway()
+   hello_app = gateway.entry_point  # Get Java object
+
+   # Call Java method
+   result = hello_app.greet("Python")
+   print(result)  # Output: Hello, Python from Py4J!
+   ```
+
+---
+
+### Key Differences:  
+| **Feature**       | **JPype**                          | **Py4J**                     |
+|-------------------|------------------------------------|------------------------------|
+| **Communication** | In-process calls                   | TCP (cross-process)          |
+| **Performance**   | Higher (no network overhead)       | Lower (network latency)      |
+| **Deployment**    | Simple (Python only)               | Requires separate Java server|
+| **Use Case**      | Tightly integrated lightweight calls | Distributed/microservices    |
+
+Choose the appropriate method based on requirements. For simple integration, **JPype** is recommended; for distributed scenarios, consider **Py4J**.
+
+**README in Chinese:**
+
 在Python中调用Java库的函数，常用的方法有使用**JPype**或**Py4J**库。下面分别提供两种方法的示例：
 
 ---
